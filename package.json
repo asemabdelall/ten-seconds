@@ -1,0 +1,14 @@
+{
+  "name": "ten-seconds",
+  "version": "1.0.0",
+  "description": "Stop the clock at exactly 10:00:00 — an installable, offline-capable arcade PWA.",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test tests/*.test.js",
+    "assets": "node scripts/generate-assets.mjs"
+  }
+}
