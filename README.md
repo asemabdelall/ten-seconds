@@ -5,7 +5,7 @@ Stop the clock at exactly **10:00:00**. A precision arcade game, built as an ins
 ```bash
 npm start          # http://localhost:8080  (Node 20+, no dependencies)
 npm test           # timing + API tests
-npm run assets     # regenerate icons and iOS launch screens (needs Playwright)
+npm run assets     # regenerate icons and iOS launch screens (needs Playwright; then quantize the PNGs to keep them small)
 ```
 
 ## Timer format: `SS:CC:XX`
