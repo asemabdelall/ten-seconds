@@ -65,6 +65,17 @@ Results are stored in `data/results.json` (`DATA_FILE` to override; `PORT` sets 
 
 ## Deploying
 
+### Vercel (production)
+
+- `vercel.json` runs `node scripts/build.mjs`, which copies `public/` to `dist/` and stamps `sw.js` with the content hash.
+- `api/health.js`, `api/leaderboard.js` and `api/results.js` are serverless functions. They store results in Supabase (`lib/supabase.js`) because Vercel has no persistent disk.
+- The schema and the two validated RPCs (`submit_result`, `get_leaderboard`) are in `supabase/migrations/`. The table itself is locked (RLS, no grants); only the RPCs can read or write it.
+- Environment variables: `SUPABASE_URL` and `SUPABASE_KEY` (the publishable key).
+
+### Self-hosted (`node server.js`)
+
+Same API with a local JSON file, used for development and the tests.
+
 Service workers and installation require **HTTPS** (except on `localhost`). Run `node server.js` behind any HTTPS reverse proxy or host. The server sets `Cache-Control: no-cache` on `sw.js`, the HTML and the manifest, and a CSP plus standard security headers.
 
 Fonts: Orbitron and Rajdhani, self-hosted under the SIL Open Font License (see `public/fonts/`).

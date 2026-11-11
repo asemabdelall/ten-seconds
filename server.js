@@ -9,8 +9,8 @@
  * scale, swap `db` for a real database; the API contract stays the same.
  */
 import http from 'node:http';
-import { readFile, writeFile, rename, mkdir, stat, readdir } from 'node:fs/promises';
-import { createHash } from 'node:crypto';
+import { readFile, writeFile, rename, mkdir, stat } from 'node:fs/promises';
+import { buildHash } from './lib/build-hash.js';
 import { createReadStream } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -221,21 +221,6 @@ async function api(req, res, url) {
   return send(res, 404, { error: 'Not found' });
 }
 
-/* ------------------------------------------------------------------ build hash */
-/** Hash of every app file (excluding launch screens/screenshots), stamped into sw.js. */
-async function buildHash() {
-  const h = createHash('sha256');
-  async function walk(dir) {
-    for (const ent of (await readdir(dir, { withFileTypes: true })).sort((a, b) => a.name.localeCompare(b.name))) {
-      const p = path.join(dir, ent.name);
-      if (ent.isDirectory()) { if (!['splash', 'screenshots'].includes(ent.name)) await walk(p); }
-      else { h.update(path.relative(PUBLIC, p)); h.update(await readFile(p)); }
-    }
-  }
-  await walk(PUBLIC);
-  return h.digest('hex').slice(0, 12);
-}
-
 /* ------------------------------------------------------------------ static */
 async function serveStatic(req, res, url) {
   let rel = decodeURIComponent(url.pathname);
@@ -265,7 +250,7 @@ async function serveStatic(req, res, url) {
     ...SECURITY_HEADERS,
   };
   if (rel === '/sw.js') {
-    const body = (await readFile(file, 'utf8')).replace('__BUILD_HASH__', await buildHash());
+    const body = (await readFile(file, 'utf8')).replace('__BUILD_HASH__', await buildHash(PUBLIC));
     headers['Service-Worker-Allowed'] = '/';
     headers['Content-Length'] = Buffer.byteLength(body);
     delete headers['Last-Modified'];
